@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align: center">
+<div style="font-weight: bold">Simple WebSocket Chat</div>
+<br/>
+<div>Room: <input id="room" type="text" size="40"/>
+    <button onclick="connect()">Connect</button>
+</div>
+<div><textarea id="messages" cols="80" rows="20" readonly="readonly"></textarea></div>
+<div>User name: <input id="username" type="text" size="20" autofocus/></div>
+<div>Message: <input id="message" type="text" size="60"/>
+    <button id="send" onclick="sendMessage()" disabled="true">Send</button>
+</div>
+<script>
+    var roomInput, messagesOutput, userNameInput, messageInput, sendButton, socket;
+
+    window.addEventListener("load", function () {
+        roomInput = document.getElementById("room");
+        messagesOutput = document.getElementById("messages");
+        userNameInput = document.getElementById("username");
+        messageInput = document.getElementById("message");
+        sendButton = document.getElementById("send");
+    }, false);
+
+    // Connect to the room
+    function connect() {
+        if (socket != null) {
+            socket.close();
+        }
+        socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/websocket-chat/endpoint/" + roomInput.value);
+        messagesOutput.value = "";
+        sendButton.disabled = false;
+        socket.onmessage = function (message) {
+            messagesOutput.value += message.data + '\r';
+        };
+    }
+
+    // Send WebSocket messages
+    function sendMessage() {
+        var userName = userNameInput.value == '' ? "[Anonymous] " : '[' + userNameInput.value + '] ';
+        socket.send(userName + messageInput.value);
+        messageInput.value = "";
+        messageInput.focus();
+    }
+</script>
+</body>
+</html>

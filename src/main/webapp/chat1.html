@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align: center">
+<div style="font-weight: bold">Simple WebSocket Chat</div>
+<br/>
+<div><textarea id="messages" cols="80" rows="20" readonly="readonly"></textarea></div>
+<div>User name: <input id="username" type="text" size="20" autofocus/></div>
+<div>Message: <input id="message" type="text" size="60"/>
+    <button onclick="sendMessage()">Send</button>
+</div>
+<script>
+    var messagesOutput, userNameInput, messageInput, socket;
+
+    window.addEventListener("load", function () {
+                messagesOutput = document.getElementById("messages");
+                userNameInput = document.getElementById("username");
+                messageInput = document.getElementById("message");
+
+                // Connect to the WebSocket server
+                socket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/websocket-chat/endpoint");
+
+                // Receive WebSocket messages
+                socket.onmessage = function (message) {
+                    messagesOutput.value += message.data + '\r';
+                };
+            },
+            false);
+
+    // Send WebSocket messages
+    function sendMessage() {
+        var userName = userNameInput.value == '' ? "[Anonymous] " : '[' + userNameInput.value + '] ';
+        socket.send(userName + messageInput.value);
+        messageInput.value = "";
+        messageInput.focus();
+    }
+</script>
+</body>
+</html>
